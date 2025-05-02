@@ -1,11 +1,13 @@
 spring:
+  application:
+    name: aws-cert-master
+  
   profiles:
     active: dev
     
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -13,9 +15,32 @@ spring:
   thymeleaf:
     cache: false
     
+  # 정적 리소스 캐싱 설정
+  web:
+    resources:
+      cache:
+        period: 3600
+      chain:
+        strategy:
+          content:
+            enabled: true
+            paths: /**
+    
 server:
   port: 8080
+  compression:
+    enabled: true
+    mime-types: text/html,text/css,application/javascript,application/json
+  error:
+    whitelabel:
+      enabled: false
 
+logging:
+  level:
+    org.hibernate.SQL: debug
+    com.certmaster: debug
+
+# 개발 환경 프로필 설정
 ---
 spring:
   config:
@@ -32,7 +57,65 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  
+  jpa:
+    show-sql: true
+    
+  thymeleaf:
+    cache: false
+    
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
 
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    com.certmaster: debug
+
+# 테스트 환경 프로필 설정
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  
+  datasource:
+    url: jdbc:h2:mem:aws_cert_test
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+
+# 스테이징 환경 프로필 설정
+---
+spring:
+  config:
+    activate:
+      on-profile: staging
+  
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:aws_cert_staging}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+      
+  thymeleaf:
+    cache: true
+
+# 운영 환경 프로필 설정
 ---
 spring:
   config:
@@ -40,7 +123,37 @@ spring:
       on-profile: prod
   
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:aws_cert_dump}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:aws_cert_prod}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
-    driver-class-name: com.mysql.cj.jdbc.Driver 
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
+  
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  
+  thymeleaf:
+    cache: true
+    
+  web:
+    resources:
+      cache:
+        period: 86400
+        
+logging:
+  level:
+    root: warn
+    com.certmaster: info
+    
+server:
+  tomcat:
+    max-threads: 200
+    connection-timeout: 5s 
