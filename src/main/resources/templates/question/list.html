@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+    
+<head>
+    <title th:text="${certification.name} + ' 문제 목록 - AWS 자격증 마스터'">문제 목록 - AWS 자격증 마스터</title>
+</head>
+
+<body>
+    <section class="container my-5">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="mb-3" th:text="${certification.name} + ' 문제 목록'">문제 목록</h1>
+                <p class="lead" th:text="${certification.description}">자격증 설명</p>
+                
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">학습 진행 상황</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="text-center mb-3">
+                                    <h6>전체 문제</h6>
+                                    <h2 th:text="${totalQuestions}">100</h2>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center mb-3">
+                                    <h6>시도한 문제</h6>
+                                    <h2 th:text="${totalAnswered}">50</h2>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center mb-3">
+                                    <h6>정답 문제</h6>
+                                    <h2 th:text="${correctAnswers}">30</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" 
+                                 th:style="${'width: ' + (totalAnswered > 0 ? (totalAnswered * 100 / totalQuestions) : 0) + '%'}" 
+                                 th:text="${totalAnswered > 0 ? #numbers.formatDecimal(totalAnswered * 100 / totalQuestions, 0, 0) + '%' : '0%'}">
+                                50%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 mb-4">
+                    <a th:href="@{/certifications/{id}(id=${certification.id})}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 자격증 정보로 돌아가기
+                    </a>
+                    <a th:href="@{/questions/random(certificationId=${certification.id})}" class="btn btn-primary">
+                        <i class="bi bi-shuffle"></i> 랜덤 문제 풀기
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col">
+                <div class="list-group">
+                    <div th:if="${questions.empty}" class="alert alert-info">
+                        등록된 문제가 없습니다.
+                    </div>
+                    
+                    <a th:each="question : ${questions}" 
+                       th:href="@{/questions/{id}(id=${question.id})}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1" th:text="${'문제 ' + question.id}">문제 1</h5>
+                        </div>
+                        <p class="mb-1" th:text="${#strings.abbreviate(question.content, 150)}">문제 내용...</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col">
+                <a th:href="@{/}" class="btn btn-outline-secondary">
+                    <i class="bi bi-house"></i> 홈으로
+                </a>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 
