@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+    
+<head>
+    <title>채점 결과 - AWS 자격증 마스터</title>
+</head>
+
+<body>
+    <section class="container my-5">
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/}">홈</a></li>
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/certifications/{id}(id=${question.certificationId})}" 
+                               th:text="${question.certificationName}">자격증</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/questions/{id}(id=${question.id})}">문제 풀이</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">결과</li>
+                    </ol>
+                </nav>
+                
+                <div class="card">
+                    <div class="card-header" th:classappend="${isCorrect ? 'bg-success' : 'bg-danger'} + ' text-white'">
+                        <h4 class="mb-0">
+                            <i th:if="${isCorrect}" class="bi bi-check-circle-fill"></i>
+                            <i th:unless="${isCorrect}" class="bi bi-x-circle-fill"></i>
+                            <span th:text="${isCorrect ? '정답입니다!' : '오답입니다'}">결과</span>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="question-content mb-4">
+                            <h5>문제 #<span th:text="${question.id}">1</span></h5>
+                            <p th:utext="${question.content}" class="mb-0">문제 내용</p>
+                        </div>
+                        
+                        <div class="options-container mt-4">
+                            <h5>보기 및 결과</h5>
+                            <div th:each="option : ${question.options}" class="form-check mb-3">
+                                <div th:with="isSelected=${selectedOptions.contains(option.id)},
+                                              isCorrectOption=${option.correct}"
+                                     th:class="${'p-3 rounded ' + 
+                                                (isSelected && isCorrectOption ? 'bg-success text-white' : 
+                                                 isSelected && !isCorrectOption ? 'bg-danger text-white' : 
+                                                 !isSelected && isCorrectOption ? 'bg-light border border-success' : 
+                                                 'bg-light')}">
+                                    <div class="d-flex align-items-center">
+                                        <div th:if="${isSelected && isCorrectOption}" 
+                                             class="me-2 d-flex align-items-center">
+                                            <i class="bi bi-check-circle-fill fs-5"></i>
+                                        </div>
+                                        <div th:if="${isSelected && !isCorrectOption}" 
+                                             class="me-2 d-flex align-items-center">
+                                            <i class="bi bi-x-circle-fill fs-5"></i>
+                                        </div>
+                                        <div th:if="${!isSelected && isCorrectOption}" 
+                                             class="me-2 d-flex align-items-center">
+                                            <i class="bi bi-check-circle fs-5 text-success"></i>
+                                        </div>
+                                        <div class="flex-grow-1" th:utext="${option.content}">보기 내용</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 해설 섹션 -->
+                        <div class="explanation-container mt-4 p-3 bg-light rounded" th:if="${question.explanation}">
+                            <h5>해설</h5>
+                            <p th:utext="${question.explanation}">문제 해설</p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a th:href="@{/questions/{id}(id=${question.id})}" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-repeat"></i> 다시 풀기
+                            </a>
+                            <a th:href="@{/questions(certificationId=${question.certificationId})}" class="btn btn-primary">
+                                <i class="bi bi-list"></i> 다른 문제 풀기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 
