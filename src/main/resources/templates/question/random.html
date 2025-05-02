@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+    
+<head>
+    <title th:text="${certification.name} + ' 랜덤 문제 풀이 - AWS 자격증 마스터'">랜덤 문제 풀이 - AWS 자격증 마스터</title>
+</head>
+
+<body>
+    <section class="container my-5">
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/}">홈</a></li>
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/certifications/{id}(id=${certification.id})}" 
+                               th:text="${certification.name}">자격증</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">랜덤 문제 풀이</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="mb-3">랜덤 문제 풀이</h1>
+                <p class="lead">
+                    <span th:text="${certification.name}">자격증</span> 시험을 위한 랜덤 문제 세트입니다.
+                    총 <strong th:text="${questions.size()}">10</strong>개의 문제가 무작위로 선택되었습니다.
+                </p>
+                
+                <div class="d-flex gap-2 mb-4">
+                    <a th:href="@{/questions(certificationId=${certification.id})}" class="btn btn-outline-secondary">
+                        <i class="bi bi-list"></i> 모든 문제 목록
+                    </a>
+                    <a th:href="@{/questions/random(certificationId=${certification.id})}" class="btn btn-outline-primary">
+                        <i class="bi bi-shuffle"></i> 다른 랜덤 세트
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col">
+                <div class="card-deck">
+                    <div th:if="${questions.empty}" class="alert alert-info">
+                        이 자격증에 대한 문제가 없습니다.
+                    </div>
+                    
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        <div th:each="question : ${questions}" class="col">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="card-title mb-0">문제 #<span th:text="${question.id}">1</span></h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text" th:utext="${#strings.abbreviate(question.content, 150)}">
+                                        문제 내용...
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <a th:href="@{/questions/{id}(id=${question.id})}" class="btn btn-sm btn-primary w-100">
+                                        <i class="bi bi-pencil-square"></i> 풀기
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col">
+                <a th:href="@{/certifications/{id}(id=${certification.id})}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 자격증 정보로 돌아가기
+                </a>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 
