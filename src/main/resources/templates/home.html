@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/default :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>AWS 자격증 덤프 문제 - 메인</title>
+</head>
+<body>
+    <section>
+        <!-- 메인 배너 -->
+        <div class="py-5 bg-light text-center">
+            <div class="container">
+                <h1 class="display-4">AWS 자격증 덤프 문제</h1>
+                <p class="lead">AWS 자격증 시험 대비를 위한 연습 문제 풀이 플랫폼입니다.</p>
+                <hr class="my-4">
+                <p>다양한 AWS 자격증에 대한 연습 문제를 풀어보세요. 모든 문제는 한글로 번역되어 있습니다.</p>
+            </div>
+        </div>
+
+        <!-- 자격증 목록 -->
+        <div class="container my-5">
+            <!-- Foundational 레벨 -->
+            <div id="foundational" class="mb-5" th:if="${certificationsByLevel.containsKey('Foundational')}">
+                <h2 class="mb-4">
+                    <span class="badge level-badge level-Foundational">Foundational</span>
+                    AWS Foundational 자격증
+                </h2>
+                <div class="row">
+                    <div class="col-md-4" th:each="cert : ${certificationsByLevel.get('Foundational')}">
+                        <div class="card certification-card">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${cert.name}">자격증 이름</h5>
+                                <h6 class="card-subtitle mb-2 text-muted" th:text="${cert.code}">자격증 코드</h6>
+                                <p class="card-text" th:text="${cert.description}">자격증 설명</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <span th:text="${cert.questionCount}">0</span>개의 문제
+                                    </small>
+                                    <div class="btn-group">
+                                        <a th:href="@{'/certifications/' + ${cert.id}}" class="btn btn-sm btn-outline-secondary">상세 정보</a>
+                                        <a th:href="@{'/certifications/' + ${cert.id} + '/questions'}" class="btn btn-sm btn-primary">문제 풀기</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Associate 레벨 -->
+            <div id="associate" class="mb-5" th:if="${certificationsByLevel.containsKey('Associate')}">
+                <h2 class="mb-4">
+                    <span class="badge level-badge level-Associate">Associate</span>
+                    AWS Associate 자격증
+                </h2>
+                <div class="row">
+                    <div class="col-md-4" th:each="cert : ${certificationsByLevel.get('Associate')}">
+                        <div class="card certification-card">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${cert.name}">자격증 이름</h5>
+                                <h6 class="card-subtitle mb-2 text-muted" th:text="${cert.code}">자격증 코드</h6>
+                                <p class="card-text" th:text="${cert.description}">자격증 설명</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <span th:text="${cert.questionCount}">0</span>개의 문제
+                                    </small>
+                                    <div class="btn-group">
+                                        <a th:href="@{'/certifications/' + ${cert.id}}" class="btn btn-sm btn-outline-secondary">상세 정보</a>
+                                        <a th:href="@{'/certifications/' + ${cert.id} + '/questions'}" class="btn btn-sm btn-primary">문제 풀기</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional 레벨 -->
+            <div id="professional" class="mb-5" th:if="${certificationsByLevel.containsKey('Professional')}">
+                <h2 class="mb-4">
+                    <span class="badge level-badge level-Professional">Professional</span>
+                    AWS Professional 자격증
+                </h2>
+                <div class="row">
+                    <div class="col-md-4" th:each="cert : ${certificationsByLevel.get('Professional')}">
+                        <div class="card certification-card">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${cert.name}">자격증 이름</h5>
+                                <h6 class="card-subtitle mb-2 text-muted" th:text="${cert.code}">자격증 코드</h6>
+                                <p class="card-text" th:text="${cert.description}">자격증 설명</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <span th:text="${cert.questionCount}">0</span>개의 문제
+                                    </small>
+                                    <div class="btn-group">
+                                        <a th:href="@{'/certifications/' + ${cert.id}}" class="btn btn-sm btn-outline-secondary">상세 정보</a>
+                                        <a th:href="@{'/certifications/' + ${cert.id} + '/questions'}" class="btn btn-sm btn-primary">문제 풀기</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Specialty 레벨 -->
+            <div id="specialty" class="mb-5" th:if="${certificationsByLevel.containsKey('Specialty')}">
+                <h2 class="mb-4">
+                    <span class="badge level-badge level-Specialty">Specialty</span>
+                    AWS Specialty 자격증
+                </h2>
+                <div class="row">
+                    <div class="col-md-4" th:each="cert : ${certificationsByLevel.get('Specialty')}">
+                        <div class="card certification-card">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${cert.name}">자격증 이름</h5>
+                                <h6 class="card-subtitle mb-2 text-muted" th:text="${cert.code}">자격증 코드</h6>
+                                <p class="card-text" th:text="${cert.description}">자격증 설명</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <span th:text="${cert.questionCount}">0</span>개의 문제
+                                    </small>
+                                    <div class="btn-group">
+                                        <a th:href="@{'/certifications/' + ${cert.id}}" class="btn btn-sm btn-outline-secondary">상세 정보</a>
+                                        <a th:href="@{'/certifications/' + ${cert.id} + '/questions'}" class="btn btn-sm btn-primary">문제 풀기</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 

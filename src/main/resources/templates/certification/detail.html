@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/default :: layout(~{::title}, ~{::section})}">
+<head>
+    <title th:text="'AWS 자격증 덤프 문제 - ' + ${certification.name}">AWS 자격증 상세 정보</title>
+</head>
+<body>
+    <section>
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <!-- 자격증 상세 정보 카드 -->
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header">
+                            <h1 class="card-title h3" th:text="${certification.name}">자격증 이름</h1>
+                            <div class="d-flex align-items-center">
+                                <h4 class="card-subtitle text-muted me-2" th:text="${certification.code}">자격증 코드</h4>
+                                <span th:class="'badge level-badge level-' + ${certification.level}" th:text="${certification.level}">레벨</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h5>자격증 설명</h5>
+                                <p class="card-text" th:text="${certification.description}">자격증 설명</p>
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h5>시험 비용</h5>
+                                    <p th:text="${'$' + certification.examCost}">$100</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>지원 언어</h5>
+                                    <p th:text="${certification.supportedLanguages}">영어, 한국어, ...</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>학습 자료</h5>
+                                <ul>
+                                    <li><a href="https://aws.amazon.com/ko/certification/" target="_blank">AWS 자격증 공식 사이트</a></li>
+                                    <li><a href="https://aws.amazon.com/ko/training/" target="_blank">AWS 교육 및 인증</a></li>
+                                    <li><a href="https://explore.skillbuilder.aws/learn" target="_blank">AWS Skill Builder</a></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>연습 문제</h5>
+                                <p th:text="'총 ' + ${certification.questionCount} + '개의 연습 문제가 있습니다.'">총 100개의 연습 문제가 있습니다.</p>
+                                <a th:href="@{'/certifications/' + ${certification.id} + '/questions'}" class="btn btn-primary">문제 풀기</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 뒤로 가기 버튼 -->
+                    <div class="d-flex justify-content-between">
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> 메인으로 돌아가기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 

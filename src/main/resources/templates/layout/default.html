@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="${title}">AWS 자격증 덤프 문제</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 40px;
+            background-color: #f8f9fa;
+        }
+        .main-container {
+            min-height: calc(100vh - 150px);
+        }
+        .certification-card {
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        .certification-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .footer {
+            background-color: #343a40;
+            color: #fff;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+        .level-badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            margin-left: 5px;
+        }
+        .level-Foundational {
+            background-color: #28a745;
+        }
+        .level-Associate {
+            background-color: #007bff;
+        }
+        .level-Professional {
+            background-color: #6f42c1;
+        }
+        .level-Specialty {
+            background-color: #fd7e14;
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">AWS 자격증 덤프 문제</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">메인</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            자격증
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/#foundational">Foundational</a></li>
+                            <li><a class="dropdown-item" href="/#associate">Associate</a></li>
+                            <li><a class="dropdown-item" href="/#professional">Professional</a></li>
+                            <li><a class="dropdown-item" href="/#specialty">Specialty</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="container main-container py-4">
+        <div th:replace="${content}">
+            <!-- 페이지별 콘텐츠가 여기에 삽입됩니다 -->
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h5>AWS 자격증 덤프 문제</h5>
+                    <p>AWS 자격증 시험 대비를 위한 연습 문제 플랫폼입니다.</p>
+                </div>
+                <div class="col-lg-6 text-end">
+                    <p>&copy; 2023 AWS 자격증 덤프 문제. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
