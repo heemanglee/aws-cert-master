@@ -49,6 +49,17 @@
                                 <p th:text="'총 ' + ${certification.questionCount} + '개의 연습 문제가 있습니다.'">총 100개의 연습 문제가 있습니다.</p>
                                 <a th:href="@{'/certifications/' + ${certification.id} + '/questions'}" class="btn btn-primary">문제 풀기</a>
                             </div>
+
+                            <div class="my-4">
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/questions(certificationId=${certification.id})}" class="btn btn-primary">
+                                        <i class="bi bi-list-check"></i> 모든 문제 목록 보기
+                                    </a>
+                                    <a th:href="@{/questions/random(certificationId=${certification.id})}" class="btn btn-success">
+                                        <i class="bi bi-shuffle"></i> 랜덤 문제 풀기
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
