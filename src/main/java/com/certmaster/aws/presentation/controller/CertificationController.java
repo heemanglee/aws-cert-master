@@ -50,8 +50,7 @@ public class CertificationController {
     public String getQuestions(@PathVariable("id") Long id, Model model) {
         return certificationService.findCertificationById(id)
                 .map(certification -> {
-                    model.addAttribute("certificationId", id);
-                    model.addAttribute("certificationName", certification.getName());
+                    // 리다이렉트가 아닌 정확한 URL로 포워딩
                     return "redirect:/questions?certificationId=" + id;
                 })
                 .orElse("redirect:/");
