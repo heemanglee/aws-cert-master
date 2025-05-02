@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+    
+<head>
+    <title th:text="${certification.name} + ' 학습 진행 상황 - AWS 자격증 마스터'">자격증 학습 진행 상황 - AWS 자격증 마스터</title>
+</head>
+
+<body>
+    <section class="container my-5">
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/}">홈</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/mypage}">마이 페이지</a></li>
+                        <li class="breadcrumb-item active" aria-current="page" th:text="${certification.name}">자격증 이름</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="mb-3" th:text="${certification.name} + ' 학습 현황'">자격증 학습 현황</h1>
+                <p class="lead" th:text="${certification.description}">자격증 설명</p>
+                
+                <div class="d-flex gap-2 mb-4">
+                    <a th:href="@{/mypage}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 마이 페이지로 돌아가기
+                    </a>
+                    <a th:href="@{/questions(certificationId=${certification.id})}" class="btn btn-primary">
+                        <i class="bi bi-list-check"></i> 문제 목록
+                    </a>
+                    <a th:href="@{/questions/random(certificationId=${certification.id})}" class="btn btn-success">
+                        <i class="bi bi-shuffle"></i> 랜덤 문제 풀기
+                    </a>
+                    <a th:href="@{/mypage/review/{id}(id=${certification.id})}" 
+                       th:if="${summary.reviewFlaggedQuestions > 0}"
+                       class="btn btn-warning">
+                        <i class="bi bi-journal-check"></i> 오답 노트
+                        <span class="badge bg-danger" th:text="${summary.reviewFlaggedQuestions}">5</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 진행 상황 요약 카드 -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">학습 통계</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="text-center mb-3">
+                                    <h6>전체 문제</h6>
+                                    <h2 th:text="${summary.totalQuestions}">100</h2>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center mb-3">
+                                    <h6>시도한 문제</h6>
+                                    <h2>
+                                        <span th:text="${summary.attemptedQuestions}">30</span>
+                                        <small class="text-muted" th:text="${'/' + summary.totalQuestions}">/ 100</small>
+                                    </h2>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center mb-3">
+                                    <h6>정답 문제</h6>
+                                    <h2>
+                                        <span th:text="${summary.correctQuestions}">20</span>
+                                        <small class="text-muted" th:text="${'/' + summary.attemptedQuestions}">/ 30</small>
+                                    </h2>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center mb-3">
+                                    <h6>정답률</h6>
+                                    <h2 th:text="${#numbers.formatDecimal(summary.correctPercentage, 0, 0) + '%'}">66%</h2>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 진행률 표시 -->
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 th:style="${'width: ' + summary.progressPercentage + '%'}" 
+                                 th:text="${#numbers.formatDecimal(summary.progressPercentage, 0, 0) + '%'}">
+                                30%
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center mt-3">
+                            <a th:href="@{/mypage/weak-points/{id}(id=${certification.id})}" 
+                               th:if="${summary.attemptedQuestions > 5}"
+                               class="btn btn-danger">
+                                <i class="bi bi-graph-down"></i> 취약 부분 분석
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 최근 풀이 문제 목록 -->
+        <div class="row mb-4" th:if="${!progressList.empty}">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h4 class="mb-0">최근 풀이 문제</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>문제 ID</th>
+                                        <th>시도 횟수</th>
+                                        <th>정답 횟수</th>
+                                        <th>정답률</th>
+                                        <th>마지막 시도</th>
+                                        <th>액션</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="progress : ${progressList}" 
+                                        th:class="${progress.correctCount > 0 ? '' : 'table-danger'}">
+                                        <td th:text="${progress.question.id}">1</td>
+                                        <td th:text="${progress.attemptCount}">3</td>
+                                        <td th:text="${progress.correctCount}">2</td>
+                                        <td th:text="${#numbers.formatDecimal(progress.correctRate * 100, 0, 0) + '%'}">66%</td>
+                                        <td th:text="${#temporals.format(progress.lastAttemptTime, 'yyyy-MM-dd HH:mm')}">2023-01-01 12:34</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a th:href="@{/questions/{id}(id=${progress.question.id})}" class="btn btn-primary">
+                                                    <i class="bi bi-pencil-square"></i> 다시 풀기
+                                                </a>
+                                                <button class="btn btn-warning toggle-review-btn" 
+                                                        th:attr="data-question-id=${progress.question.id}, data-flagged=${progress.flaggedForReview}">
+                                                    <i class="bi" th:classappend="${progress.flaggedForReview ? 'bi-bookmark-check-fill' : 'bi-bookmark-plus'}"></i>
+                                                    <span th:text="${progress.flaggedForReview ? '오답 노트 제거' : '오답 노트 추가'}"></span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 오답 노트 기능을 위한 JavaScript -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // 오답 노트 토글 버튼 이벤트 설정
+            document.querySelectorAll('.toggle-review-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const questionId = this.getAttribute('data-question-id');
+                    const currentFlagged = this.getAttribute('data-flagged') === 'true';
+                    const newFlagged = !currentFlagged;
+                    
+                    fetch('/mypage/review/toggle', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `questionId=${questionId}&flagged=${newFlagged}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // UI 업데이트
+                            this.setAttribute('data-flagged', newFlagged);
+                            
+                            const icon = this.querySelector('i');
+                            if (newFlagged) {
+                                icon.classList.remove('bi-bookmark-plus');
+                                icon.classList.add('bi-bookmark-check-fill');
+                                this.querySelector('span').textContent = '오답 노트 제거';
+                            } else {
+                                icon.classList.remove('bi-bookmark-check-fill');
+                                icon.classList.add('bi-bookmark-plus');
+                                this.querySelector('span').textContent = '오답 노트 추가';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('오답 노트 상태 변경 중 오류가 발생했습니다.');
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

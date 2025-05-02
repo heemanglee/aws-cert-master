@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+    
+<head>
+    <title>마이 페이지 - AWS 자격증 마스터</title>
+</head>
+
+<body>
+    <section class="container my-5">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="mb-3">마이 페이지</h1>
+                <p class="lead">학습 진행 상황을 확인하고 오답 노트를 관리하세요.</p>
+                
+                <div class="d-flex gap-2 mb-4">
+                    <a th:href="@{/}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house"></i> 홈으로
+                    </a>
+                    <a th:href="@{/mypage/review}" class="btn btn-warning">
+                        <i class="bi bi-journal-text"></i> 오답 노트
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 학습 진행 상황 대시보드 -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">학습 진행 현황</h4>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${summaryMap.isEmpty()}" class="alert alert-info">
+                            아직 풀이한 문제가 없습니다.
+                        </div>
+                        
+                        <div th:each="entry : ${summaryMap}" class="mb-4 cert-progress-card" 
+                             th:with="summary=${entry.value}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 th:text="${summary.certificationName}">자격증 이름</h5>
+                                <a th:href="@{/mypage/certifications/{id}(id=${summary.certificationId})}" class="btn btn-sm btn-outline-primary">
+                                    상세 보기
+                                </a>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="text-center mb-2">
+                                        <h6>전체 문제</h6>
+                                        <h3 th:text="${summary.totalQuestions}">100</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center mb-2">
+                                        <h6>시도한 문제</h6>
+                                        <h3>
+                                            <span th:text="${summary.attemptedQuestions}">30</span>
+                                            <small class="text-muted" th:text="${'/' + summary.totalQuestions}">/ 100</small>
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center mb-2">
+                                        <h6>정답 문제</h6>
+                                        <h3>
+                                            <span th:text="${summary.correctQuestions}">20</span>
+                                            <small class="text-muted" th:text="${'/' + summary.attemptedQuestions}">/ 30</small>
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 진행률 표시 -->
+                            <div class="progress mb-2" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     th:style="${'width: ' + summary.progressPercentage + '%'}" 
+                                     th:text="${#numbers.formatDecimal(summary.progressPercentage, 0, 0) + '%'}">
+                                    30%
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2 mt-3">
+                                <a th:href="@{/questions(certificationId=${summary.certificationId})}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-list-check"></i> 문제 목록
+                                </a>
+                                <a th:href="@{/mypage/review/{id}(id=${summary.certificationId})}" 
+                                   th:if="${summary.reviewFlaggedQuestions > 0}"
+                                   class="btn btn-sm btn-warning">
+                                    <i class="bi bi-journal-check"></i> 오답 노트 
+                                    <span class="badge bg-danger" th:text="${summary.reviewFlaggedQuestions}">5</span>
+                                </a>
+                                <a th:href="@{/mypage/weak-points/{id}(id=${summary.certificationId})}" 
+                                   th:if="${summary.attemptedQuestions > 5}"
+                                   class="btn btn-sm btn-danger">
+                                    <i class="bi bi-graph-down"></i> 취약 부분
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 

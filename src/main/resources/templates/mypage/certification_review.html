@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+    
+<head>
+    <title th:text="${certification.name} + ' 오답 노트 - AWS 자격증 마스터'">자격증 오답 노트 - AWS 자격증 마스터</title>
+</head>
+
+<body>
+    <section class="container my-5">
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/}">홈</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/mypage}">마이 페이지</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/mypage/review}">오답 노트</a></li>
+                        <li class="breadcrumb-item active" aria-current="page" th:text="${certification.name}">자격증 이름</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="mb-3" th:text="${certification.name} + ' 오답 노트'">자격증 오답 노트</h1>
+                <p class="lead">틀린 문제나 복습이 필요한 문제를 다시 풀어보세요.</p>
+                
+                <div class="d-flex gap-2 mb-4">
+                    <a th:href="@{/mypage/review}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 오답 노트 목록으로
+                    </a>
+                    <a th:href="@{/questions(certificationId=${certification.id})}" class="btn btn-primary">
+                        <i class="bi bi-list-check"></i> 모든 문제 보기
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 오답 문제 목록 -->
+        <div class="row">
+            <div class="col">
+                <div th:if="${reviewList.isEmpty()}" class="alert alert-info">
+                    오답 노트에 추가된 문제가 없습니다.
+                </div>
+                
+                <div th:each="progress, iter : ${reviewList}" class="card mb-4 shadow-sm">
+                    <div class="card-header bg-warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0" th:text="'문제 #' + ${progress.question.id}">문제 #1</h4>
+                            <div>
+                                <span class="badge bg-danger" th:if="${progress.correctCount == 0}">아직 맞추지 못함</span>
+                                <span class="badge bg-secondary" th:text="'시도: ' + ${progress.attemptCount} + '회'">시도: 3회</span>
+                                <span class="badge bg-success" th:text="'정답: ' + ${progress.correctCount} + '회'">정답: 1회</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 문제 내용 -->
+                        <div class="question-content mb-4">
+                            <p th:utext="${questionDtos[iter.index].content}">문제 내용...</p>
+                        </div>
+                        
+                        <!-- 보기 목록 -->
+                        <div class="options-container mb-4">
+                            <h5>보기</h5>
+                            <div th:each="option : ${questionDtos[iter.index].options}" class="form-check mb-3">
+                                <div th:class="${'p-3 rounded ' + (option.correct ? 'bg-light border border-success' : 'bg-light')}">
+                                    <div class="d-flex align-items-center">
+                                        <div th:if="${option.correct}" 
+                                             class="me-2 d-flex align-items-center">
+                                            <i class="bi bi-check-circle fs-5 text-success"></i>
+                                        </div>
+                                        <div class="flex-grow-1" th:utext="${option.content}">보기 내용</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 해설 섹션 -->
+                        <div class="explanation-container p-3 bg-light rounded mb-4" th:if="${questionDtos[iter.index].explanation}">
+                            <h5>해설</h5>
+                            <p th:utext="${questionDtos[iter.index].explanation}">문제 해설</p>
+                        </div>
+                        
+                        <!-- 오답 노트 메모 섹션 -->
+                        <div class="review-note-container mb-4">
+                            <h5>나의 메모</h5>
+                            <div class="input-group">
+                                <textarea class="form-control review-note" rows="3" 
+                                         th:text="${progress.reviewNote}"
+                                         th:attr="data-question-id=${progress.question.id}">메모 내용</textarea>
+                                <button class="btn btn-warning save-note-btn" 
+                                        th:attr="data-question-id=${progress.question.id}">
+                                    <i class="bi bi-save"></i> 저장
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-danger remove-review-btn"
+                                    th:attr="data-question-id=${progress.question.id}">
+                                <i class="bi bi-bookmark-x"></i> 오답 노트에서 제거
+                            </button>
+                            <a th:href="@{/questions/{id}(id=${progress.question.id})}" class="btn btn-primary">
+                                <i class="bi bi-pencil-square"></i> 다시 풀기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 오답 노트 기능을 위한 JavaScript -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // 오답 노트 제거 버튼 이벤트 설정
+            document.querySelectorAll('.remove-review-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const questionId = this.getAttribute('data-question-id');
+                    
+                    if (confirm('이 문제를 오답 노트에서 제거하시겠습니까?')) {
+                        fetch('/mypage/review/toggle', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `questionId=${questionId}&flagged=false`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // 카드 제거
+                                this.closest('.card').remove();
+                                
+                                // 남은 문제가 없는지 확인
+                                if (document.querySelectorAll('.card').length === 0) {
+                                    const alertDiv = document.createElement('div');
+                                    alertDiv.className = 'alert alert-info';
+                                    alertDiv.textContent = '오답 노트에 추가된 문제가 없습니다.';
+                                    document.querySelector('.row').appendChild(alertDiv);
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('오답 노트 상태 변경 중 오류가 발생했습니다.');
+                        });
+                    }
+                });
+            });
+            
+            // 메모 저장 버튼 이벤트 설정
+            document.querySelectorAll('.save-note-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const questionId = this.getAttribute('data-question-id');
+                    const note = this.parentElement.querySelector('.review-note').value;
+                    
+                    fetch('/mypage/review/note', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `questionId=${questionId}&note=${encodeURIComponent(note)}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('메모가 저장되었습니다.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('메모 저장 중 오류가 발생했습니다.');
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

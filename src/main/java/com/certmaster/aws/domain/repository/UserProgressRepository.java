@@ -61,4 +61,34 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
      */
     @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.userId = :userId AND up.question.certification.id = :certificationId")
     long countByUserIdAndCertificationId(@Param("userId") String userId, @Param("certificationId") Long certificationId);
+    
+    /**
+     * 사용자의 오답 노트에 추가된 진행 상황을 조회합니다.
+     * 
+     * @param userId 사용자 ID
+     * @return 오답 노트에 추가된 진행 상황 목록
+     */
+    List<UserProgress> findByUserIdAndFlaggedForReviewTrue(String userId);
+    
+    /**
+     * 특정 자격증에 대한 사용자의 오답 노트에 추가된 진행 상황을 조회합니다.
+     * 
+     * @param userId 사용자 ID
+     * @param certificationId 자격증 ID
+     * @return 오답 노트에 추가된 진행 상황 목록
+     */
+    @Query("SELECT up FROM UserProgress up WHERE up.userId = :userId AND up.question.certification.id = :certificationId AND up.flaggedForReview = true")
+    List<UserProgress> findFlaggedForReviewByUserIdAndCertificationId(@Param("userId") String userId, @Param("certificationId") Long certificationId);
+    
+    /**
+     * 특정 자격증에 대한 사용자의 정답률이 낮은 문제를 조회합니다.
+     * 
+     * @param userId 사용자 ID
+     * @param certificationId 자격증 ID
+     * @param maxCorrectRate 최대 정답률
+     * @param minAttempts 최소 시도 횟수
+     * @return 정답률이 낮은 문제의 진행 상황 목록
+     */
+    @Query("SELECT up FROM UserProgress up WHERE up.userId = :userId AND up.question.certification.id = :certificationId AND CAST(up.correctCount AS float) / up.attemptCount <= :maxCorrectRate AND up.attemptCount >= :minAttempts ORDER BY CAST(up.correctCount AS float) / up.attemptCount ASC")
+    List<UserProgress> findLowCorrectRateByUserIdAndCertificationId(@Param("userId") String userId, @Param("certificationId") Long certificationId, @Param("maxCorrectRate") float maxCorrectRate, @Param("minAttempts") int minAttempts);
 } 

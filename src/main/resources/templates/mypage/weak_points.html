@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+    
+<head>
+    <title th:text="${certification.name} + ' 취약 부분 분석 - AWS 자격증 마스터'">취약 부분 분석 - AWS 자격증 마스터</title>
+</head>
+
+<body>
+    <section class="container my-5">
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/}">홈</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/mypage}">마이 페이지</a></li>
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/mypage/certifications/{id}(id=${certification.id})}" th:text="${certification.name}">자격증 이름</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">취약 부분 분석</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="mb-3" th:text="${certification.name} + ' 취약 부분 분석'">자격증 취약 부분 분석</h1>
+                <p class="lead">정답률이 낮은 문제들을 모아 취약한 부분을 확인하세요.</p>
+                
+                <div class="d-flex gap-2 mb-4">
+                    <a th:href="@{/mypage/certifications/{id}(id=${certification.id})}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 학습 현황으로 돌아가기
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 필터링 옵션 -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0">분석 설정</h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/mypage/weak-points/{id}(id=${certification.id})}" method="get" class="row g-3">
+                            <div class="col-md-6">
+                                <label for="maxRate" class="form-label">최대 정답률</label>
+                                <div class="input-group">
+                                    <input type="range" class="form-range" id="maxRate" name="maxRate" 
+                                           min="0" max="1" step="0.1" th:value="${maxRate}" 
+                                           oninput="updateMaxRateValue(this.value)">
+                                    <span id="maxRateValue" class="ms-2" th:text="${#numbers.formatDecimal(maxRate * 100, 0, 0) + '%'}">50%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="minAttempts" class="form-label">최소 시도 횟수</label>
+                                <select class="form-select" id="minAttempts" name="minAttempts">
+                                    <option value="1" th:selected="${minAttempts == 1}">1회 이상</option>
+                                    <option value="2" th:selected="${minAttempts == 2}">2회 이상</option>
+                                    <option value="3" th:selected="${minAttempts == 3}">3회 이상</option>
+                                    <option value="5" th:selected="${minAttempts == 5}">5회 이상</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-filter"></i> 필터 적용
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 취약 부분 문제 목록 -->
+        <div class="row">
+            <div class="col">
+                <div th:if="${weakPoints.isEmpty()}" class="alert alert-info">
+                    조건에 맞는 취약 부분이 없습니다.
+                </div>
+                
+                <div th:each="progress, iter : ${weakPoints}" class="card mb-4 shadow-sm">
+                    <div class="card-header bg-danger text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0" th:text="'문제 #' + ${progress.question.id}">문제 #1</h4>
+                            <div>
+                                <span class="badge bg-secondary" th:text="'시도: ' + ${progress.attemptCount} + '회'">시도: 3회</span>
+                                <span class="badge bg-success" th:text="'정답: ' + ${progress.correctCount} + '회'">정답: 1회</span>
+                                <span class="badge bg-info" th:text="'정답률: ' + ${#numbers.formatDecimal(progress.correctRate * 100, 0, 0) + '%'}">정답률: 33%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 문제 내용 -->
+                        <div class="question-content mb-4">
+                            <p th:utext="${questionDtos[iter.index].content}">문제 내용...</p>
+                        </div>
+                        
+                        <!-- 보기 목록 -->
+                        <div class="options-container mb-4">
+                            <h5>보기</h5>
+                            <div th:each="option : ${questionDtos[iter.index].options}" class="form-check mb-3">
+                                <div th:class="${'p-3 rounded ' + (option.correct ? 'bg-light border border-success' : 'bg-light')}">
+                                    <div class="d-flex align-items-center">
+                                        <div th:if="${option.correct}" 
+                                             class="me-2 d-flex align-items-center">
+                                            <i class="bi bi-check-circle fs-5 text-success"></i>
+                                        </div>
+                                        <div class="flex-grow-1" th:utext="${option.content}">보기 내용</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 해설 섹션 -->
+                        <div class="explanation-container p-3 bg-light rounded mb-4" th:if="${questionDtos[iter.index].explanation}">
+                            <h5>해설</h5>
+                            <p th:utext="${questionDtos[iter.index].explanation}">문제 해설</p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-warning toggle-review-btn" 
+                                    th:attr="data-question-id=${progress.question.id}, data-flagged=${progress.flaggedForReview}">
+                                <i class="bi" th:classappend="${progress.flaggedForReview ? 'bi-bookmark-check-fill' : 'bi-bookmark-plus'}"></i>
+                                <span th:text="${progress.flaggedForReview ? '오답 노트에서 제거' : '오답 노트에 추가'}"></span>
+                            </button>
+                            <a th:href="@{/questions/{id}(id=${progress.question.id})}" class="btn btn-primary">
+                                <i class="bi bi-pencil-square"></i> 다시 풀기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 취약 부분 분석 JavaScript -->
+    <script th:inline="javascript">
+        function updateMaxRateValue(value) {
+            document.getElementById('maxRateValue').textContent = Math.round(value * 100) + '%';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 오답 노트 토글 버튼 이벤트 설정
+            document.querySelectorAll('.toggle-review-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const questionId = this.getAttribute('data-question-id');
+                    const currentFlagged = this.getAttribute('data-flagged') === 'true';
+                    const newFlagged = !currentFlagged;
+                    
+                    fetch('/mypage/review/toggle', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `questionId=${questionId}&flagged=${newFlagged}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // UI 업데이트
+                            this.setAttribute('data-flagged', newFlagged);
+                            
+                            const icon = this.querySelector('i');
+                            if (newFlagged) {
+                                icon.classList.remove('bi-bookmark-plus');
+                                icon.classList.add('bi-bookmark-check-fill');
+                                this.querySelector('span').textContent = '오답 노트에서 제거';
+                            } else {
+                                icon.classList.remove('bi-bookmark-check-fill');
+                                icon.classList.add('bi-bookmark-plus');
+                                this.querySelector('span').textContent = '오답 노트에 추가';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('오답 노트 상태 변경 중 오류가 발생했습니다.');
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

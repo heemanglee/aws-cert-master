@@ -21,26 +21,39 @@ public class UserProgress {
     @JoinColumn(name = "question_id")
     private Question question; // 연관된 문제
     
-    private boolean correct; // 정답 여부
+    @Column(nullable = false)
+    private int attemptCount; // 시도 횟수
+    
+    @Column(nullable = false)
+    private int correctCount; // 정답 횟수
     
     private boolean flaggedForReview; // 오답 노트에 추가 여부
     
-    @Column(name = "attempted_at")
-    private LocalDateTime attemptedAt; // 시도 일시
+    private String reviewNote; // 오답 노트에 추가할 메모
     
-    @Column(name = "last_reviewed_at")
-    private LocalDateTime lastReviewedAt; // 마지막 리뷰 일시
+    @Column(name = "first_attempt_time")
+    private LocalDateTime firstAttemptTime; // 첫 시도 시간
+    
+    @Column(name = "last_attempt_time")
+    private LocalDateTime lastAttemptTime; // 마지막 시도 시간
+    
+    @Column(name = "last_correct_time")
+    private LocalDateTime lastCorrectTime; // 마지막 정답 시간
+    
+    @Column(name = "last_review_time")
+    private LocalDateTime lastReviewTime; // 마지막 오답 노트 확인 시간
     
     // 기본 생성자
     protected UserProgress() {
     }
     
     // 일반 생성자
-    public UserProgress(String userId, Question question, boolean correct) {
+    public UserProgress(String userId, Question question) {
         this.userId = userId;
         this.question = question;
-        this.correct = correct;
-        this.attemptedAt = LocalDateTime.now();
+        this.attemptCount = 0;
+        this.correctCount = 0;
+        this.flaggedForReview = false;
     }
     
     // Getter 및 Setter
@@ -64,12 +77,28 @@ public class UserProgress {
         this.question = question;
     }
     
-    public boolean isCorrect() {
-        return correct;
+    public int getAttemptCount() {
+        return attemptCount;
     }
     
-    public void setCorrect(boolean correct) {
-        this.correct = correct;
+    public void setAttemptCount(int attemptCount) {
+        this.attemptCount = attemptCount;
+    }
+    
+    public int getCorrectCount() {
+        return correctCount;
+    }
+    
+    public void setCorrectCount(int correctCount) {
+        this.correctCount = correctCount;
+    }
+    
+    public boolean isCorrect() {
+        return correctCount > 0;
+    }
+    
+    public double getCorrectRate() {
+        return attemptCount > 0 ? (double) correctCount / attemptCount : 0;
     }
     
     public boolean isFlaggedForReview() {
@@ -79,24 +108,68 @@ public class UserProgress {
     public void setFlaggedForReview(boolean flaggedForReview) {
         this.flaggedForReview = flaggedForReview;
         if (flaggedForReview) {
-            this.lastReviewedAt = LocalDateTime.now();
+            this.lastReviewTime = LocalDateTime.now();
         }
     }
     
-    public LocalDateTime getAttemptedAt() {
-        return attemptedAt;
+    public String getReviewNote() {
+        return reviewNote;
     }
     
-    public void setAttemptedAt(LocalDateTime attemptedAt) {
-        this.attemptedAt = attemptedAt;
+    public void setReviewNote(String reviewNote) {
+        this.reviewNote = reviewNote;
     }
     
-    public LocalDateTime getLastReviewedAt() {
-        return lastReviewedAt;
+    public LocalDateTime getFirstAttemptTime() {
+        return firstAttemptTime;
     }
     
-    public void setLastReviewedAt(LocalDateTime lastReviewedAt) {
-        this.lastReviewedAt = lastReviewedAt;
+    public void setFirstAttemptTime(LocalDateTime firstAttemptTime) {
+        this.firstAttemptTime = firstAttemptTime;
+    }
+    
+    public LocalDateTime getLastAttemptTime() {
+        return lastAttemptTime;
+    }
+    
+    public void setLastAttemptTime(LocalDateTime lastAttemptTime) {
+        this.lastAttemptTime = lastAttemptTime;
+    }
+    
+    public LocalDateTime getLastCorrectTime() {
+        return lastCorrectTime;
+    }
+    
+    public void setLastCorrectTime(LocalDateTime lastCorrectTime) {
+        this.lastCorrectTime = lastCorrectTime;
+    }
+    
+    public LocalDateTime getLastReviewTime() {
+        return lastReviewTime;
+    }
+    
+    public void setLastReviewTime(LocalDateTime lastReviewTime) {
+        this.lastReviewTime = lastReviewTime;
+    }
+    
+    /**
+     * 문제 풀이 시도를 기록합니다.
+     * 
+     * @param isCorrect 정답 여부
+     */
+    public void recordAttempt(boolean isCorrect) {
+        this.attemptCount++;
+        
+        if (isCorrect) {
+            this.correctCount++;
+            this.lastCorrectTime = LocalDateTime.now();
+        }
+        
+        if (this.firstAttemptTime == null) {
+            this.firstAttemptTime = LocalDateTime.now();
+        }
+        
+        this.lastAttemptTime = LocalDateTime.now();
     }
     
     @Override
@@ -104,9 +177,9 @@ public class UserProgress {
         return "UserProgress{" +
                 "id=" + id +
                 ", userId='" + userId + '\'' +
-                ", correct=" + correct +
+                ", attemptCount=" + attemptCount +
+                ", correctCount=" + correctCount +
                 ", flaggedForReview=" + flaggedForReview +
-                ", attemptedAt=" + attemptedAt +
                 '}';
     }
 } 

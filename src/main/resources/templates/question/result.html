@@ -73,6 +73,34 @@
                             <p th:utext="${question.explanation}">문제 해설</p>
                         </div>
                         
+                        <!-- 오답 노트 섹션 추가 -->
+                        <div class="review-container mt-4" th:if="${!isCorrect}">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="mb-0">오답 노트</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input review-flag" type="checkbox" 
+                                               id="reviewFlag" checked 
+                                               th:attr="data-question-id=${question.id}">
+                                        <label class="form-check-label" for="reviewFlag">
+                                            이 문제를 오답 노트에 추가
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="reviewNote" class="form-label">메모</label>
+                                        <textarea class="form-control review-note" id="reviewNote" rows="3" 
+                                                 placeholder="이 문제에 대한 메모를 작성하세요."
+                                                 th:attr="data-question-id=${question.id}"></textarea>
+                                    </div>
+                                    
+                                    <button class="btn btn-warning save-note-btn">메모 저장</button>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="d-flex justify-content-between mt-4">
                             <a th:href="@{/questions/{id}(id=${question.id})}" class="btn btn-outline-primary">
                                 <i class="bi bi-arrow-repeat"></i> 다시 풀기
@@ -86,5 +114,66 @@
             </div>
         </div>
     </section>
+    
+    <!-- 오답 노트 기능을 위한 JavaScript 추가 -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const reviewFlag = document.querySelector('.review-flag');
+            const reviewNote = document.querySelector('.review-note');
+            const saveNoteBtn = document.querySelector('.save-note-btn');
+            
+            if (reviewFlag) {
+                reviewFlag.addEventListener('change', function() {
+                    const questionId = this.getAttribute('data-question-id');
+                    const flagged = this.checked;
+                    
+                    fetch('/mypage/review/toggle', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `questionId=${questionId}&flagged=${flagged}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // 성공적으로 토글됨
+                            console.log('오답 노트 상태 변경 완료');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('오답 노트 상태 변경 중 오류가 발생했습니다.');
+                    });
+                });
+            }
+            
+            if (saveNoteBtn && reviewNote) {
+                saveNoteBtn.addEventListener('click', function() {
+                    const questionId = reviewNote.getAttribute('data-question-id');
+                    const note = reviewNote.value;
+                    
+                    fetch('/mypage/review/note', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `questionId=${questionId}&note=${encodeURIComponent(note)}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // 성공적으로 메모 저장됨
+                            alert('메모가 저장되었습니다.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('메모 저장 중 오류가 발생했습니다.');
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html> 
