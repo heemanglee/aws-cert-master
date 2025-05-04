@@ -17,6 +17,7 @@ public class QuestionDto {
     private List<OptionDto> options = new ArrayList<>();
     private Long certificationId;
     private String certificationName;
+    private boolean alreadySolved; // 사용자가 이미 푼 문제인지 여부
     
     // 기본 생성자
     public QuestionDto() {
@@ -90,6 +91,14 @@ public class QuestionDto {
     
     public void setCertificationName(String certificationName) {
         this.certificationName = certificationName;
+    }
+    
+    public boolean isAlreadySolved() {
+        return alreadySolved;
+    }
+    
+    public void setAlreadySolved(boolean alreadySolved) {
+        this.alreadySolved = alreadySolved;
     }
     
     /**

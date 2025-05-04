@@ -3,6 +3,7 @@ package com.certmaster.aws.presentation.controller;
 import com.certmaster.aws.application.dto.QuestionDto;
 import com.certmaster.aws.domain.entity.Certification;
 import com.certmaster.aws.domain.entity.Question;
+import com.certmaster.aws.domain.entity.UserProgress;
 import com.certmaster.aws.domain.service.CertificationService;
 import com.certmaster.aws.domain.service.QuestionService;
 import com.certmaster.aws.domain.service.UserProgressService;
@@ -56,8 +57,22 @@ public class QuestionController {
         Certification certification = certificationOpt.get();
         List<Question> questions = questionService.findQuestionsByCertificationId(certificationId);
         
+        // 사용자의 진행 상황 가져오기
+        List<UserProgress> userProgresses = userProgressService.findByUserIdAndQuestionCertificationId(TEMP_USER_ID, certificationId);
+        Map<Long, UserProgress> progressMap = userProgresses.stream()
+                .collect(Collectors.toMap(
+                    progress -> progress.getQuestion().getId(), 
+                    progress -> progress
+                ));
+        
         List<QuestionDto> questionDtos = questions.stream()
-                .map(QuestionDto::fromEntity)
+                .map(question -> {
+                    QuestionDto dto = QuestionDto.fromEntity(question);
+                    // 사용자가 이미 문제를 풀었는지 확인하여 설정
+                    UserProgress progress = progressMap.get(question.getId());
+                    dto.setAlreadySolved(progress != null && progress.getAttemptCount() > 0);
+                    return dto;
+                })
                 .collect(Collectors.toList());
         
         // 진행 상황 통계 추가
