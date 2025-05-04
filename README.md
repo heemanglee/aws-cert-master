@@ -27,30 +27,37 @@ AWS 클라우드 자격증 준비를 위한 학습 및 문제 풀이 플랫폼�
 ## 애플리케이션 스크린샷
 
 ### 메인 페이지
-![메인 페이지](docs/images/메인 페이지.png)
+<img width="1366" alt="메인 페이지" src="https://github.com/user-attachments/assets/0bcd409d-4315-42c3-a955-e0b3e9569974" />
+
 AWS 자격증 덤프 문제 메인 페이지로, 다양한 AWS 자격증 카테고리와 문제를 확인할 수 있습니다.
 
 ### 문제 리스트
-![문제 리스트](docs/images/문제 리스트.png)
-AWS Certified Cloud Practitioner 자격증에 대한 문제 목록 페이지입니다. 총 642개의 문제 중 현재 1개의 문제를 풀어보았습니다.
+<img width="1198" alt="문제 리스트" src="https://github.com/user-attachments/assets/e2ad19af-eef1-4a87-91e0-dfa2521ad2a4" />
+
+AWS Certified Cloud Practitioner 자격증에 대한 문제 목록 페이지입니다.
 
 ### 자격증 상세 정보
-![자격증 상세 정보](docs/images/상세정보.png)
+<img width="1366" alt="상세정보" src="https://github.com/user-attachments/assets/025b2dff-2afa-4c83-ae47-18b83be7ae25" />
+
 AWS Certified Cloud Practitioner 자격증에 대한 상세 정보 페이지로, 시험 비용, 지원 언어, 학습 자료 등의 정보를 제공합니다.
 
 ### 문제 풀이 결과
-![정답 화면](docs/images/채점결과.png)
+<img width="1366" alt="채점결과" src="https://github.com/user-attachments/assets/237f7ace-2f4b-4ea5-8dca-e0de790a0305" />
+
 정답을 맞췄을 때의 결과 화면입니다. 정답에 대한 설명과 함께 다음 문제로 넘어갈 수 있습니다.
 
 ### 오답 화면
-![오답 화면 1](docs/images/오답1.png)
+<img width="1366" alt="오답1" src="https://github.com/user-attachments/assets/cfe1914b-573c-4e40-814d-0a1b25c24291" />
+
 오답을 선택했을 때의 결과 화면입니다. 정답과 함께 오답 노트에 추가할 수 있는 기능을 제공합니다.
 
-![오답 노트](docs/images/오답2.png)
+<img width="1366" alt="오답2" src="https://github.com/user-attachments/assets/72b04c42-c583-40aa-bb4c-2a7a0647034b" />
+
 오답 노트 페이지로, 사용자가 틀린 문제들을 모아볼 수 있고 재학습할 수 있습니다.
 
 ### 마이페이지
-![마이페이지](docs/images/마이페이지.png)
+<img width="1366" alt="마이페이지" src="https://github.com/user-attachments/assets/b14d161c-ce56-4b8a-bca6-10ebc109dff1" />
+
 사용자의 학습 진행 상황을 한눈에 볼 수 있는 마이페이지입니다. 각 자격증별 전체 문제 수, 시도한 문제 수, 정답 문제 수를 확인할 수 있으며, 오답 노트에 추가된 문제를 바로 확인할 수 있습니다.
 
 ## 기술 스택
