@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,6 +77,27 @@ public class DataInitializer {
             return;
         }
         
+        // 파일명 기준으로 정렬 (숫자 순서대로)
+        Arrays.sort(dumpFiles, (f1, f2) -> {
+            // 파일명에서 숫자 부분 추출 (예: practice-exam-1.md -> 1)
+            String name1 = f1.getName();
+            String name2 = f2.getName();
+            
+            try {
+                int num1 = extractFileNumber(name1);
+                int num2 = extractFileNumber(name2);
+                return Integer.compare(num1, num2);
+            } catch (NumberFormatException e) {
+                // 숫자 추출에 실패하면 파일명 자체로 비교
+                return name1.compareTo(name2);
+            }
+        });
+        
+        logger.info("총 {} 개의 덤프 파일을 찾았습니다.", dumpFiles.length);
+        for (File file : dumpFiles) {
+            logger.info("정렬된 덤프 파일: {}", file.getName());
+        }
+        
         int totalQuestions = 0;
         
         for (File dumpFile : dumpFiles) {
@@ -90,5 +112,22 @@ public class DataInitializer {
         }
         
         logger.info("총 {} 개의 Cloud Practitioner 문제가 로드되었습니다.", totalQuestions);
+    }
+    
+    /**
+     * 파일 이름에서 숫자 부분을 추출합니다.
+     * 예: practice-exam-1.md -> 1
+     */
+    private int extractFileNumber(String filename) {
+        // 파일명에서 "practice-exam-" 다음부터 ".md" 전까지의 부분 추출
+        int startIndex = filename.indexOf("-exam-") + 6;
+        int endIndex = filename.lastIndexOf(".md");
+        
+        if (startIndex >= 0 && endIndex > startIndex) {
+            String numberPart = filename.substring(startIndex, endIndex);
+            return Integer.parseInt(numberPart);
+        }
+        
+        throw new NumberFormatException("파일명에서 숫자를 추출할 수 없습니다: " + filename);
     }
 } 
