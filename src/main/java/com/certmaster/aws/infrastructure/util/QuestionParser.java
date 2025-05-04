@@ -161,29 +161,17 @@ public class QuestionParser {
     /**
      * 영어 문제와 보기를 한글로 번역합니다.
      * (실제 환경에서는 외부 번역 API를 사용하거나 미리 번역된 내용을 사용할 수 있습니다)
-     * 이 예제에서는 간단히 문제 앞에 [번역] 접두사를 붙이는 것으로 대체합니다.
      * 
      * @param question 번역할 문제
      * @return 번역된 문제
      */
     public Question translateQuestionToKorean(Question question) {
-        // 실제 구현에서는 번역 API 호출 또는 다른 번역 메커니즘을 사용
-        // 이 예제에서는 단순히 접두사를 붙이는 것으로 대체
+        // 번역을 사용하지 않고 원본 내용을 그대로 유지
         
-        // 문제 내용 번역
-        String translatedContent = "[번역] " + question.getContent();
-        question.setContent(translatedContent);
-        
-        // 보기 번역
+        // 보기 유지 (원본 내용을 그대로 사용)
         for (Option option : question.getOptions()) {
-            String translatedOptionContent = "[번역] " + option.getContent();
-            option.setContent(translatedOptionContent);
-        }
-        
-        // 설명 번역
-        if (question.getExplanation() != null && !question.getExplanation().isEmpty()) {
-            String translatedExplanation = "[번역] " + question.getExplanation();
-            question.setExplanation(translatedExplanation);
+            // 원본 내용 유지, [번역] 접두사 사용하지 않음
+            option.setContent(option.getContent());
         }
         
         return question;
