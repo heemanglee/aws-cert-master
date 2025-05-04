@@ -2,13 +2,17 @@ package com.certmaster.aws.infrastructure.util;
 
 import com.certmaster.aws.domain.entity.Option;
 import com.certmaster.aws.domain.entity.Question;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +21,7 @@ import java.util.regex.Pattern;
  */
 @Component
 public class QuestionParser {
+    private static final Logger logger = LoggerFactory.getLogger(QuestionParser.class);
     
     // 문제 시작 패턴 (예: "1. AWS allows users...")
     private static final Pattern QUESTION_PATTERN = Pattern.compile("^(\\d+)\\. (.+)$");
@@ -26,6 +31,9 @@ public class QuestionParser {
     
     // 정답 패턴 (예: "Correct answer: D" 또는 "Correct answer: B, E")
     private static final Pattern ANSWER_PATTERN = Pattern.compile("Correct answer:\\s*([A-Z](,\\s*[A-Z])*)");
+    
+    // 새로운 형식의 정답 패턴 (예: "Correct Answer: B")
+    private static final Pattern ANSWER_PATTERN_ALT = Pattern.compile("Correct Answer:\\s*([A-Z](,\\s*[A-Z])*)");
     
     /**
      * 마크다운 파일에서 문제와 보기를 파싱합니다.
@@ -83,8 +91,12 @@ public class QuestionParser {
                     
                     String optionLetter = optionMatcher.group(1);
                     String optionContent = optionMatcher.group(2);
-                    Option option = new Option(optionContent, false); // 일단 정답 여부는 false로 설정
-                    option.setContent(optionContent);
+                    
+                    // 옵션 내용에 알파벳 식별자를 포함하여 저장
+                    String fullOptionContent = optionLetter + ". " + optionContent;
+                    Option option = new Option(fullOptionContent, false); // 일단 정답 여부는 false로 설정
+                    
+                    logger.info("옵션 추가: {} - {}", optionLetter, optionContent.substring(0, Math.min(30, optionContent.length())));
                     currentOptions.add(option);
                     continue;
                 }
@@ -104,6 +116,20 @@ public class QuestionParser {
                     isReadingOptions = false;
                     
                     String answers = answerMatcher.group(1);
+                    for (String answer : answers.split(",\\s*")) {
+                        correctAnswers.add(answer.trim());
+                    }
+                    continue;
+                }
+                
+                // 새로운 형식의 정답 패턴 체크
+                Matcher altAnswerMatcher = ANSWER_PATTERN_ALT.matcher(line);
+                if (altAnswerMatcher.find()) {
+                    isReadingAnswer = true;
+                    isReadingOptions = false;
+                    
+                    String answers = altAnswerMatcher.group(1);
+                    logger.info("새 형식으로 정답 찾음: {}", answers);
                     for (String answer : answers.split(",\\s*")) {
                         correctAnswers.add(answer.trim());
                     }
@@ -140,18 +166,40 @@ public class QuestionParser {
      * @param explanation 설명
      */
     private void finalizeQuestion(Question question, List<Option> options, List<String> correctAnswers, String explanation) {
-        // 정답 설정
+        logger.info("파싱된 문제: {}", question.getContent().substring(0, Math.min(50, question.getContent().length())));
+        logger.info("파싱된 정답: {}", correctAnswers);
+        
+        // 각 옵션에 대한 알파벳 식별자와 내용을 매핑
+        Map<String, Option> optionMap = new HashMap<>();
         for (Option option : options) {
-            for (String correctAnswer : correctAnswers) {
-                // 옵션 내용에서 알파벳 접두사 추출
-                String optionContent = option.getContent();
-                if (optionContent.startsWith(correctAnswer + ".") || 
-                    optionContent.startsWith(correctAnswer + " ")) {
-                    option.setCorrect(true);
-                    break;
+            String content = option.getContent();
+            if (content.length() >= 1) {
+                // 옵션 내용에서 알파벳 추출 시도
+                Matcher matcher = Pattern.compile("^([A-Z])\\. ").matcher(content);
+                if (matcher.find()) {
+                    String letter = matcher.group(1);
+                    optionMap.put(letter, option);
+                    logger.info("옵션 매핑: {} -> {}", letter, content.substring(0, Math.min(30, content.length())));
                 }
             }
+        }
+        
+        // 정답 설정
+        for (String correctAnswer : correctAnswers) {
+            Option option = optionMap.get(correctAnswer);
+            if (option != null) {
+                option.setCorrect(true);
+                logger.info("정답으로 설정: {}", correctAnswer);
+            } else {
+                logger.warn("정답 매핑 실패: {}", correctAnswer);
+            }
+        }
+        
+        // 옵션을 문제에 추가
+        for (Option option : options) {
             question.addOption(option);
+            logger.info("옵션 추가: 정답={}, 내용={}", option.isCorrect(), 
+                option.getContent().substring(0, Math.min(30, option.getContent().length())));
         }
         
         // 설명 설정

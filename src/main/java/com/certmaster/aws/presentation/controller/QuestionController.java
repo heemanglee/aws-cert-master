@@ -6,6 +6,8 @@ import com.certmaster.aws.domain.entity.Question;
 import com.certmaster.aws.domain.service.CertificationService;
 import com.certmaster.aws.domain.service.QuestionService;
 import com.certmaster.aws.domain.service.UserProgressService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/questions")
 public class QuestionController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(QuestionController.class);
     
     private final QuestionService questionService;
     private final CertificationService certificationService;
@@ -95,6 +99,8 @@ public class QuestionController {
         // selectedOptions를 final로 만들기 위해 새 변수 생성
         final List<Long> finalSelectedOptions = selectedOptions != null ? selectedOptions : new ArrayList<>();
         
+        logger.info("문제 ID: {}, 제출된 답안: {}", id, finalSelectedOptions);
+        
         return questionService.findQuestionById(id)
                 .map(question -> {
                     QuestionDto questionDto = QuestionDto.fromEntity(question);
@@ -102,6 +108,17 @@ public class QuestionController {
                     // 정답 확인
                     List<Long> correctOptionIds = questionDto.getCorrectOptionIds();
                     boolean isCorrect = new HashSet<>(finalSelectedOptions).equals(new HashSet<>(correctOptionIds));
+                    
+                    logger.info("정답 옵션 ID: {}", correctOptionIds);
+                    logger.info("정답 여부: {}", isCorrect);
+                    
+                    // 각 옵션의 정보 로깅
+                    questionDto.getOptions().forEach(option -> 
+                        logger.info("옵션 ID: {}, 내용: {}, 정답 여부: {}", 
+                            option.getId(), 
+                            option.getContent().substring(0, Math.min(30, option.getContent().length())), 
+                            option.isCorrect())
+                    );
                     
                     // 사용자 진행 상황 기록
                     userProgressService.recordProgress(TEMP_USER_ID, id, isCorrect);
