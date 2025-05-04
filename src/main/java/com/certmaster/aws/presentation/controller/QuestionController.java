@@ -92,9 +92,8 @@ public class QuestionController {
             @RequestParam(value = "selectedOptions", required = false) List<Long> selectedOptions,
             Model model) {
         
-        if (selectedOptions == null) {
-            selectedOptions = new ArrayList<>();
-        }
+        // selectedOptions를 final로 만들기 위해 새 변수 생성
+        final List<Long> finalSelectedOptions = selectedOptions != null ? selectedOptions : new ArrayList<>();
         
         return questionService.findQuestionById(id)
                 .map(question -> {
@@ -102,13 +101,13 @@ public class QuestionController {
                     
                     // 정답 확인
                     List<Long> correctOptionIds = questionDto.getCorrectOptionIds();
-                    boolean isCorrect = new HashSet<>(selectedOptions).equals(new HashSet<>(correctOptionIds));
+                    boolean isCorrect = new HashSet<>(finalSelectedOptions).equals(new HashSet<>(correctOptionIds));
                     
                     // 사용자 진행 상황 기록
                     userProgressService.recordProgress(TEMP_USER_ID, id, isCorrect);
                     
                     model.addAttribute("question", questionDto);
-                    model.addAttribute("selectedOptions", selectedOptions);
+                    model.addAttribute("selectedOptions", finalSelectedOptions);
                     model.addAttribute("isCorrect", isCorrect);
                     model.addAttribute("showResult", true);
                     

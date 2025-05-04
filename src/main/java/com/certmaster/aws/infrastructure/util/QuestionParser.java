@@ -59,11 +59,12 @@ public class QuestionParser {
                         questions.add(currentQuestion);
                     }
                     
-                    // 새 문제 초기화
-                    currentQuestion = new Question();
+                    // 새 문제 초기화 - 기본 생성자 대신 파라미터가 있는 생성자 사용
+                    String content = questionMatcher.group(2);
+                    currentQuestion = new Question(content, "");
                     currentOptions = new ArrayList<>();
                     correctAnswers = new ArrayList<>();
-                    questionContent = new StringBuilder(questionMatcher.group(2));
+                    questionContent = new StringBuilder(content);
                     explanation = new StringBuilder();
                     isReadingQuestion = true;
                     isReadingOptions = false;

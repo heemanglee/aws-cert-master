@@ -1,6 +1,7 @@
 package com.certmaster.aws.infrastructure.config;
 
 import com.certmaster.aws.domain.entity.Certification;
+import com.certmaster.aws.domain.entity.Question;
 import com.certmaster.aws.domain.service.CertificationService;
 import com.certmaster.aws.domain.service.QuestionService;
 import org.slf4j.Logger;
